@@ -1,11 +1,12 @@
 import uvicorn
-from fastapi import FastAPI, Query
+from fastapi import FastAPI
 from fastapi.responses import FileResponse
 from icalendar import Calendar, Event
 from datetime import datetime
 from io import BytesIO
 from pydantic import BaseModel
 import os
+import uuid
 
 app = FastAPI()
 
@@ -58,17 +59,28 @@ async def generate_ics(flight_data: FlightDetails):
     inbound_event.add('location', f'{flight_data.inbound_departure_airport} to {flight_data.inbound_arrival_airport}')
     cal.add_component(inbound_event)
     
-    # Save to file
-    ics_filename = f"{ICS_DIR}/flight_schedule.ics"
-    with open(ics_filename, "wb") as f:
+    # Generate a unique filename
+    unique_filename = f"{uuid.uuid4()}.ics"
+    ics_filepath = os.path.join(ICS_DIR, unique_filename)
+
+    # Save the ICS file
+    with open(ics_filepath, "wb") as f:
         f.write(cal.to_ical())
 
-    return {"message": "ICS file generated successfully!", "download_url": "/download-ics"}
+    return {"message": "ICS file generated successfully!", "download_url": f"/download-ics/{unique_filename}"}
 
-@app.get("/download-ics")
-async def download_ics():
-    ics_filename = f"{ICS_DIR}/flight_schedule.ics"
-    return FileResponse(ics_filename, media_type="text/calendar", filename="flight_schedule.ics")
+@app.get("/download-ics/{filename}")
+async def download_ics(filename: str):
+    ics_filepath = os.path.join(ICS_DIR, filename)
+    if not os.path.exists(ics_filepath):
+        return {"error": "File not found."}
+
+    return FileResponse(
+        ics_filepath, 
+        media_type="text/calendar", 
+        filename=filename, 
+        headers={"Content-Disposition": f"attachment; filename={filename}"}
+    )
 
 # Run the API
 if __name__ == "__main__":
