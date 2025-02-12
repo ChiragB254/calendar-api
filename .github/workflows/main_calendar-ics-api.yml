@@ -1,3 +1,7 @@
+# Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
+# More GitHub Actions for Azure: https://github.com/Azure/actions
+# More info on Python, GitHub Actions, and Azure App Service: https://aka.ms/python-webapps-actions
+
 name: Build and deploy Python app to Azure Web App - calendar-ics-api
 
 on:
@@ -60,6 +64,7 @@ jobs:
       - name: Unzip artifact for deployment
         run: unzip release.zip
 
+      
       - name: Login to Azure
         uses: azure/login@v2
         with:
@@ -73,9 +78,3 @@ jobs:
         with:
           app-name: 'calendar-ics-api'
           slot-name: 'Production'
-
-      # Ensure startup.txt is recognized by the Azure app
-      - name: Set startup command
-        run: |
-          echo "uvicorn main:app --host 0.0.0.0 --port 8000" > startup.txt
-          az webapp config appsettings set --name calendar-ics-api --resource-group culinarychill_rg_v1 --settings WEBSITES_PORT=8000
