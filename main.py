@@ -1,4 +1,3 @@
-import nest_asyncio
 import uvicorn
 from fastapi import FastAPI, Query
 from fastapi.responses import FileResponse
@@ -7,9 +6,6 @@ from datetime import datetime
 from io import BytesIO
 from pydantic import BaseModel
 import os
-
-# Apply nest_asyncio for running inside Jupyter Notebooks
-nest_asyncio.apply()
 
 app = FastAPI()
 
