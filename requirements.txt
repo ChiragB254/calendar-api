@@ -3,3 +3,4 @@ fastapi
 icalendar
 pydantic
 datetime
+uuid
